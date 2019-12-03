@@ -1,0 +1,102 @@
+const express= require('express');
+const router= new express.Router();
+
+
+//scrapper
+const rp = require('request-promise-native');
+const cheerio = require('cheerio');
+
+const mongoose = require('mongoose');
+
+const Product=  require('../model/Product')
+
+
+//mongo config
+const conURL= 'mongodb://127.0.0.1:27017/';
+const dbName= 'farmacy-risk';
+
+mongoose.connect(conURL+dbName,{
+    useNewUrlParser: true,
+    useCreateIndex : true,
+    useUnifiedTopology: true,
+    useFindAndModify: true
+});
+
+
+
+router.get('/find/:id',(req,res)=>{
+
+    Product.findOne({ idProduct: req.params.id},  (err, p) =>{
+        
+        if(p){
+            console.log('Valor de  temp :',p);
+            res.send(p);
+
+        }else{ 
+            console.error('SEGUI');
+            findProduct(req, res);
+        }
+      
+    });
+
+});
+
+
+module.exports= router;
+
+function findProduct(req, res) {
+
+    const options = {
+        uri: `http://www.e-lactancia.org/producto/${req.params.id}`,
+        transform(body) {
+            // console.debug(body);
+            return cheerio.load(body);
+        }
+    };
+
+    rp(options)
+        .then(($) => {
+            let name = $('h1.term-header ').text().trim();
+            let title = $('h2.risk-header ').text();
+            let desc = '';
+            // console.debug($('h2.risk-header ').text());
+            let risk = getRiskLevel(title);
+            Array.from($(`div.squared.risk-comment-level${risk.level}`).children()).forEach(obj => desc += obj.children[0].data);
+            const me = new Product({
+                risk,
+                name,
+                desc: desc.trim(),
+                idProduct: req.params.id
+            });
+            //save into DB
+            me.save()
+                .then(() => {
+                    console.log(me);
+                    res.status(201).send(me);
+                    // process.exit();
+                }).catch((error) => {
+                    console.error('Error! : ', error);
+                    res.status(404).send(error);
+                    // process.exit();
+                });
+        })
+        .catch((err) => {
+            // console.error('Error en Scrapper : ' ,err);
+            res.status(410).send('No hemos encontrado la página que buscabas. Por favor, prueba con otra búsqueda.');
+        }).finally(() => {
+        });
+}
+
+function getRiskLevel(title) {
+
+    let riskLeve = 0;
+    
+    if (title === 'Riesgo bajo para la lactancia')
+        riskLeve = 1;
+    else if (title === 'Riesgo alto para la lactancia')
+        riskLeve = 2;
+    else if (title === 'Riesgo muy alto para la lactancia')
+        riskLeve = 3;
+
+    return {level:riskLeve,desc:title};
+}
