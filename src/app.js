@@ -12,8 +12,6 @@ const port =process.env.PORT || 3000;
 app.use(user);
 
 app.listen(port,()=>{
-    console.info('Server Start in '+port+' port');
+    console.info('Server Start  in  '+port+' port');
 });
-
-
 
