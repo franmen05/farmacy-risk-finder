@@ -2,12 +2,12 @@
 
 // const validator= require('validator');
 const express=  require('express');
-const user= require('./view/appService');
+const user= require('./src/view/appService');
 
 
 //Express
-const app= express();
-const port =process.env.PORT || 3000;
+const app  = express();
+const port = process.env.PORT || 3000;
 
 app.use(user);
 
