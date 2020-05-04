@@ -114,9 +114,6 @@ function findProductByName(name,req,res,isMultiple){
             if(!isMultiple)
                 res.send(product);
 
-        }else{ 
-            console.error('SEGUI');
-            findInWebProduct(idProduct,req, res);
         }
       
     });
@@ -127,7 +124,7 @@ function findProduct(idProduct,req,res,isMultiple){
     Product.findOne({ idProduct},  (err, product) =>{
         
         if(product){
-            console.log('Valor de  temp :',product);
+            console.log('Valor encontrado :',product);
             if(!isMultiple)
                 res.send(product);
 
@@ -171,14 +168,16 @@ function findInWebProduct(idProduct,req, res) {
             //save into DB
             me.save()
                 .then(() => {
-                    console.log(me);
-                    res.status(201).send(me);
+                    // console.log(me);
+                    // res.status(201).send(me);
                     // process.exit();
                 }).catch((error) => {
-                    console.error('Error! : ', error);
-                    res.status(404).send(error);
+                    // console.error('Error! : ', error);
+
+                    // res.status(404).send(error);
                     // process.exit();
                 });
+            res.status(201).send(me);
         })
         .catch((err) => {
 
