@@ -30,7 +30,7 @@ mongoose.connect(conURL+dbName,{
 router.get('/initalLoad',(req,res)=>{
 
 
-    data1.map(x => {
+    data.map(x => {
         console.info(x.id +" - "+x.nombre_en);
 
         ProductTitle.findOne({ id: x.id},  (err, product) =>{
@@ -68,7 +68,6 @@ router.get('/initalLoad',(req,res)=>{
 
     res.send("Listo");
 
-
 });
 
 
@@ -94,8 +93,7 @@ router.get('/findMultiple/:firstId/:lastId',(req,res)=>{
     
     console.debug(firstId);
     console.debug(lastId);
-// 
-// 
+
     for(firstId ; firstId<=lastId ; firstId++){
         console.debug(firstId);
         findProduct(firstId,req,res,true);
@@ -108,8 +106,8 @@ router.get('/findMultiple/:firstId/:lastId',(req,res)=>{
 module.exports= router;
 
 function findProductByName(name,req,res,isMultiple){
-    
-    Product.find({ name : {'$regex': name}},  (err, product) =>{
+
+    ProductTitle.find({ name_es : {'$regex': name}},  (err, product) =>{
         
         if(product){
             console.log('Valor de  temp :',product);
@@ -134,7 +132,7 @@ function findProduct(idProduct,req,res,isMultiple){
                 res.send(product);
 
         }else{ 
-            console.error('SEGUI');
+            // console.error('SEGUI');
             findInWebProduct(idProduct,req, res);
         }
       
