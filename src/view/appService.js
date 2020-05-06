@@ -159,7 +159,7 @@ function findInWebProduct(idProduct,type,req, res) {
             let desc = '';
             // console.debug($('h2.risk-header ').text());
             let risk = getRiskLevel(title);
-            Array.from($(`div.squared.risk-comment-level${risk.level}`).children()).forEach(obj => desc += obj.children[0].data);
+            Array.from($(`div.squared.risk-comment-level${risk.level}`).children()).forEach(obj => desc += $(obj).text());
 
             const me = new Product({
                 risk,
@@ -186,7 +186,7 @@ function findInWebProduct(idProduct,type,req, res) {
         })
         .catch((err) => {
 
-            console.error('Error en Scrapper : ' );
+            console.error('Error en Scrapper : ' +err);
             res.status(410).send('No hemos encontrado la página que buscabas. Por favor, prueba con otra búsqueda.');
 
         }).finally(() => {
@@ -197,11 +197,11 @@ function getRiskLevel(title) {
 
     let riskLeve = 0;
     
-    if (title === 'Riesgo bajo para la lactancia')
+    if (title == 'Riesgo bajo para la lactancia')
         riskLeve = 1;
-    else if (title === 'Riesgo alto para la lactancia')
+    else if (title == 'Riesgo alto para la lactancia')
         riskLeve = 2;
-    else if (title === 'Riesgo muy alto para la lactancia')
+    else if (title == 'Riesgo muy alto para la lactancia')
         riskLeve = 3;
 
     return {level:riskLeve,desc:title};
