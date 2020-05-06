@@ -159,7 +159,7 @@ function findInWebProduct(idProduct,type,req, res) {
             let desc = '';
             // console.debug($('h2.risk-header ').text());
             let risk = getRiskLevel(title);
-            Array.from($(`div.squared.risk-comment-level${risk.level}`).children()).forEach(obj => desc += $(obj).text());
+            Array.from($(`div.squared.risk-comment-level${risk.level}`).children()).forEach(obj => desc += $(obj).text()+" \n ");
 
             const me = new Product({
                 risk,
