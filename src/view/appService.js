@@ -8,7 +8,9 @@ const cheerio = require('cheerio');
 
 const Product=  require('../service/Product')
 const ProductTitle=  require('../service/ProductTiftle')
-const data=  require('../service/util/iniitalData')
+const dataMarca=  require('../service/util/initialDataMarcas')
+const dataSinonimos=  require('../service/util/iniitalDataSinonimos')
+const {data11,data2}=  require('../service/util/iniitalData2')
 
 
 const mongoose = require('mongoose');
@@ -26,30 +28,31 @@ mongoose.connect(conURL+dbName,{
 });
 
 
-
 router.get('/initalLoad',(req,res)=>{
+    const type = "marca";
+    dataMarca.map(x => {
+        console.info(x.id +" - "+x.nombre_paises_en);
 
 
-    data.map(x => {
-        console.info(x.id +" - "+x.nombre_en);
-
-        ProductTitle.findOne({ id: x.id},  (err, product) =>{
+        ProductTitle.findOne({ id: x.id, type},  (err, product) =>{
         
             if(product){
                 console.log('EL PRODUCTO YA EXISTE :',product);
     
             }else{ 
-                console.error('GUARDANDO');
+                console.error('GUARDANDO :' +x.nombre_paises_en);
 
                 const me = new ProductTitle({
                     id : x.id,
-                    name_es : x.nombre_es,
-                    name_en : x.nombre_en
+                    type,
+                    name_es : x.nombre_paises_es,
+                    name_en : x.nombre_paises_en
                 });
 
 
                 me.save()
                     .then(() => {
+                        console.log("GUARDADO");
                         console.log(me);
                         // res.status(201).send(me);
                         // process.exit();
@@ -78,25 +81,26 @@ router.get('/findByName/:name',(req,res)=>{
 });
 
 
-router.get('/find/:id',(req,res)=>{
+router.get('/find/:type/:id',(req,res)=>{
 
-    findProduct(req.params.id,req,res,false);
+    findProduct(req.params.id,req.params.type,req,res,false);
 
 });
 
 
-router.get('/findMultiple/:firstId/:lastId',(req,res)=>{
+router.get('/findMultiple/type/:firstId/:lastId',(req,res)=>{
 
 
+    let id=req.params.firstId;
     let lastId=req.params.lastId;
-    let firstId=req.params.firstId;
-    
-    console.debug(firstId);
+    let type=req.params.type;
+
+    console.debug(id);
     console.debug(lastId);
 
-    for(firstId ; firstId<=lastId ; firstId++){
-        console.debug(firstId);
-        findProduct(firstId,req,res,true);
+    for(id ; id<=lastId ; id++){
+        console.debug(id);
+        findProduct(id, type,req,res,true);
     }
 
     res.send("Procesando");
@@ -119,9 +123,9 @@ function findProductByName(name,req,res,isMultiple){
     });
 }
 
-function findProduct(idProduct,req,res,isMultiple){
+function findProduct(idProduct,type,req,res,isMultiple){
     
-    Product.findOne({ idProduct},  (err, product) =>{
+    Product.findOne({ idProduct,type},  (err, product) =>{
         
         if(product){
             console.log('Valor encontrado :',product);
@@ -130,17 +134,17 @@ function findProduct(idProduct,req,res,isMultiple){
 
         }else{ 
             // console.error('SEGUI');
-            findInWebProduct(idProduct,req, res);
+            findInWebProduct(idProduct,type,req, res);
         }
       
     });
 }
 
 
-function findInWebProduct(idProduct,req, res) {
+function findInWebProduct(idProduct,type,req, res) {
 
     const options = {
-        uri: `http://www.e-lactancia.org/producto/${idProduct}`,
+        uri: `http://www.e-lactancia.org/${type}/${idProduct}`,
         transform(body) {
             // console.debug(body);
             return cheerio.load(body);
@@ -161,6 +165,7 @@ function findInWebProduct(idProduct,req, res) {
                 risk,
                 name,
                 desc: desc.trim(),
+                type,
                 idProduct,
                 source : options.uri
             });
@@ -168,7 +173,7 @@ function findInWebProduct(idProduct,req, res) {
             //save into DB
             me.save()
                 .then(() => {
-                    // console.log(me);
+                    console.log(me);
                     // res.status(201).send(me);
                     // process.exit();
                 }).catch((error) => {

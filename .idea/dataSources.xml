@@ -7,5 +7,11 @@
       <jdbc-driver>com.dbschema.MongoJdbcDriver</jdbc-driver>
       <jdbc-url>mongodb://localhost:27017/farmacy-risk</jdbc-url>
     </data-source>
+    <data-source source="LOCAL" name="test@cluster0-oi4bs.mongodb.net" uuid="d9afabdc-9aee-40ca-b9f4-3868964756be">
+      <driver-ref>mongo</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.dbschema.MongoJdbcDriver</jdbc-driver>
+      <jdbc-url>mongodb+srv://cluster0-oi4bs.mongodb.net/test?retryWrites=true&amp;w=majority</jdbc-url>
+    </data-source>
   </component>
 </project>

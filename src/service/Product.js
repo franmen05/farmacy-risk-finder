@@ -8,7 +8,8 @@ const Product = mongoose.model('Product',{
     },
     name : String ,
     desc : String,
-    idProduct :  {type : Number, unique : true},
+    type : String,
+    idProduct :  {type : Number, unique : false},
     source: String
 })
 
